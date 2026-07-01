@@ -4,6 +4,7 @@ import morgan from "morgan";
 import connectDB from "./db/connect.js";
 import notFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
+import authRouter from "./routes/authRouter.js";
 
 const app = express();
 
@@ -13,9 +14,12 @@ app.use(express.json());
 // others
 app.use(morgan("tiny"));
 
+// routes
 app.get("/", (_, res) => {
   res.send("ECommerce-API running... ✅");
 });
+
+app.use("/api/v1/auth", authRouter);
 
 // custom middlewares
 app.use(notFound); // 404 - always before errorHandlerMiddleware
