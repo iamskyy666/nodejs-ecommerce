@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import connectDB from "./db/connect.js";
 import notFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
@@ -13,10 +14,13 @@ app.use(express.json());
 
 // others
 app.use(morgan("tiny"));
+app.use(cookieParser(process.env.JWT_SECRET));
 
 // routes
-app.get("/", (_, res) => {
+app.get("/", (req, res) => {
   res.send("ECommerce-API running... ✅");
+   console.log(req.signedCookies);
+   console.log(req.cookies);
 });
 
 app.use("/api/v1/auth", authRouter);
