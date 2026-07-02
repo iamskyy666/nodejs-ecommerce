@@ -19,8 +19,8 @@ app.use(cookieParser(process.env.JWT_SECRET));
 // routes
 app.get("/", (req, res) => {
   res.send("ECommerce-API running... ✅");
-   console.log(req.signedCookies);
-   console.log(req.cookies);
+   console.log("signedCookie:",req.signedCookies);
+   console.log("cookies: ",req.cookies);
 });
 
 app.use("/api/v1/auth", authRouter);
