@@ -4,7 +4,8 @@ import NotFoundError from "../errors/not-found.js";
 
 // All PRIVATE routes
 
-async function getAllUsers(_, res) {
+async function getAllUsers(req, res) {
+  console.log(req.user); // { name: 'skyy', userId: '6a4667deef85a1867053a02e', role: 'admin' }
   const users = await User.find({ role: "user" }).select("-password");
   res
     .status(StatusCodes.OK)
