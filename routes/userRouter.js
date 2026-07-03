@@ -17,7 +17,7 @@ userRouter.get(
   authorizePermissions("admin"),
   getAllUsers,
 );
-userRouter.get("/show-me", showCurrentUser);
+userRouter.get("/show-me",authenticateUser, showCurrentUser);
 userRouter.patch("/update-user", updateUser);
 userRouter.patch("/update-user-password", updateUserPassword);
 //! /:id - should always be at the bottom

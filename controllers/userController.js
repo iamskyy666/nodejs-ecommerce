@@ -23,7 +23,9 @@ async function getSingleUser(req, res) {
 }
 
 async function showCurrentUser(req, res) {
-  res.send("Show Current User");
+  // Just get the user from the token
+  // No need to query the DB
+  res.status(StatusCodes.OK).json({current_user:req.user})
 }
 
 async function updateUser(req, res) {
