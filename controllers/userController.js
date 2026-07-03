@@ -1,6 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import User from "../models/user.model.js";
 import NotFoundError from "../errors/not-found.js";
+import BadRequestError from "../errors/bad-request.js";
+import UnauthenticatedError from "../errors/unauthenticated.js";
 
 // All PRIVATE routes
 
@@ -25,7 +27,7 @@ async function getSingleUser(req, res) {
 async function showCurrentUser(req, res) {
   // Just get the user from the token
   // No need to query the DB
-  res.status(StatusCodes.OK).json({current_user:req.user})
+  res.status(StatusCodes.OK).json({ current_user: req.user });
 }
 
 async function updateUser(req, res) {
@@ -33,7 +35,27 @@ async function updateUser(req, res) {
 }
 
 async function updateUserPassword(req, res) {
-  res.send("Update User Password");
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    throw new BadRequestError(
+      "🔴 Please provide both, the old and the new password!",
+    );
+  }
+
+  const user = await User.findOne({ _id: req.user.userId });
+
+  const isPasswordValid = await user.comparePassword(oldPassword);
+
+  if (!isPasswordValid) {
+    throw new UnauthenticatedError("🔴 Invalid Credentials.");
+  }
+
+  user.password = newPassword;
+
+  await user.save();
+
+  res.status(StatusCodes.OK).json({ msg: "🟢 Password updated successfully!" });
 }
 
 export {
