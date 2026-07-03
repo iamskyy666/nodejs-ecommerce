@@ -1,13 +1,24 @@
+import { StatusCodes } from "http-status-codes";
 import User from "../models/user.model.js";
+import NotFoundError from "../errors/not-found.js";
 
 // All PRIVATE routes
 
-async function getAllUsers(req, res) {
-  res.send("Get All Users");
+async function getAllUsers(_, res) {
+  const users = await User.find({ role: "user" }).select("-password");
+  res
+    .status(StatusCodes.OK)
+    .json({ msg: "🟢 Fetched all users with user-roles!", allUsers: users });
 }
 
 async function getSingleUser(req, res) {
-  res.send("Get Single User");
+  const userId = req.params.id;
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    throw new NotFoundError("🔴 User not found!"); // custom-error
+  }
+  res.status(StatusCodes.OK).json({ user: user });
 }
 
 async function showCurrentUser(req, res) {
