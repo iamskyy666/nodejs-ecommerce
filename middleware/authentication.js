@@ -19,4 +19,4 @@ async function authenticateUser(req, res, next) {
   }
 }
 
-export { authenticateUser };
+export default authenticateUser;
