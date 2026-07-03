@@ -6,6 +6,7 @@ import connectDB from "./db/connect.js";
 import notFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authRouter from "./routes/authRouter.js";
+import userRouter from "./routes/userRouter.js";
 
 const app = express();
 
@@ -19,11 +20,12 @@ app.use(cookieParser(process.env.JWT_SECRET));
 // routes
 app.get("/", (req, res) => {
   res.send("ECommerce-API running... ✅");
-   console.log("signedCookie:",req.signedCookies);
-   console.log("cookies: ",req.cookies);
+  console.log("signedCookie:", req.signedCookies);
+  console.log("cookies: ", req.cookies);
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
 
 // custom middlewares
 app.use(notFound); // 404 - always before errorHandlerMiddleware
