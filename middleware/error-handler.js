@@ -23,6 +23,17 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
     customError.statusCode = StatusCodes.BAD_REQUEST;
   }
+  // if (err.code === 11000) {
+  //   console.log("========== DUPLICATE ERROR ==========");
+  //   console.dir(err, { depth: null });
+  //   console.log("keyValue:", err.keyValue);
+
+  //   customError.msg = `Duplicate value entered for ${Object.keys(
+  //     err.keyValue,
+  //   )}. Please choose another value.`;
+
+  //   customError.statusCode = StatusCodes.BAD_REQUEST;
+  // }
 
   // Invalid ObjectId
   if (err.name === "CastError") {

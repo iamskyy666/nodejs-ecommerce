@@ -3,11 +3,14 @@ import User from "../models/user.model.js";
 import NotFoundError from "../errors/not-found.js";
 import BadRequestError from "../errors/bad-request.js";
 import UnauthenticatedError from "../errors/unauthenticated.js";
+import createTokenUser from "../utils/createTokenUser.js";
+import { attachCookiesToResp } from "../utils/jwt.js";
+import checkPermissions from "../utils/checkPermissions.js";
 
 // All PRIVATE routes
 
 async function getAllUsers(req, res) {
-  console.log(req.user); // { name: 'skyy', userId: '6a4667deef85a1867053a02e', role: 'admin' }
+  //console.log(req.user); // { name: 'skyy', userId: '6a4667deef85a1867053a02e', role: 'admin' }
   const users = await User.find({ role: "user" }).select("-password");
   res
     .status(StatusCodes.OK)
@@ -21,6 +24,8 @@ async function getSingleUser(req, res) {
   if (!user) {
     throw new NotFoundError("🔴 User not found!"); // custom-error
   }
+  
+ checkPermissions(req.user, user._id);
   res.status(StatusCodes.OK).json({ user: user });
 }
 
@@ -30,8 +35,53 @@ async function showCurrentUser(req, res) {
   res.status(StatusCodes.OK).json({ current_user: req.user });
 }
 
+//! updateUser with findOneAndupdate()
+// async function updateUser(req, res) {
+//   const { email, name } = req.body;
+//   if (!email || !name) {
+//     throw new BadRequestError("🔴 Please provide all values!");
+//   }
+
+//   const user = await User.findOneAndUpdate(
+//     { _id: req.user.userId },
+//     { email, name },
+//     { new: true, runValidators: true },
+//   );
+
+//   const tokenUser = createTokenUser(user);
+//   attachCookiesToResp({ res, user: tokenUser });
+
+//   // send res.
+//   res.status(StatusCodes.OK).json({ updated_user: tokenUser });
+// }
+
+//! updateUser with user.save() // RECOMMENDED HERE 💡
 async function updateUser(req, res) {
-  res.send("Update User");
+  const { email, name } = req.body;
+  if (!email || !name) {
+    throw new BadRequestError("🔴 Please provide all values!");
+  }
+
+  // const user = await User.findOne({ _id: req.user.userId });
+  const user = await User.findById(req.user.userId); // Better than User.findOne()
+
+  if (!user) {
+    throw new NotFoundError("🔴 User not found!");
+  }
+
+  // Once we get the user, we manually change the values
+  user.email = email;
+  user.name = name;
+
+  await user.save();
+
+  // console.log("Saved successfully");
+
+  const tokenUser = createTokenUser(user);
+  attachCookiesToResp({ res, user: tokenUser });
+
+  // send res.
+  res.status(StatusCodes.OK).json({ updated_user: tokenUser });
 }
 
 async function updateUserPassword(req, res) {

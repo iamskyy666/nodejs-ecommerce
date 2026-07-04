@@ -18,9 +18,9 @@ userRouter.get(
   getAllUsers,
 );
 userRouter.get("/show-me", authenticateUser, showCurrentUser);
-userRouter.patch("/update-user", updateUser);
+userRouter.patch("/update-user",authenticateUser, updateUser);
 userRouter.patch("/update-user-password", authenticateUser, updateUserPassword);
 //! /:id - should always be at the bottom
-userRouter.get("/:id", authenticateUser, authorizePermissions, getSingleUser);
+userRouter.get("/:id", authenticateUser, authorizePermissions("admin"), getSingleUser);
 
 export default userRouter;

@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import { attachCookiesToResp } from "../utils/jwt.js";
 import BadRequestError from "../errors/bad-request.js";
 import UnauthenticatedError from "../errors/unauthenticated.js";
+import createTokenUser from "../utils/createTokenUser.js";
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -18,11 +19,7 @@ const register = async (req, res) => {
     role,
   });
 
-  const tokenUser = {
-    name: user.name,
-    userId: user._id,
-    role: user.role,
-  };
+  const tokenUser = createTokenUser(user);
 
   const token = attachCookiesToResp({
     res,
@@ -55,11 +52,7 @@ const login = async (req, res) => {
     throw new UnauthenticatedError("🔴 Invalid credentials.");
   }
 
-  const tokenUser = {
-    name: user.name,
-    userId: user._id,
-    role: user.role,
-  };
+  const tokenUser = createTokenUser(user);
 
   const token = attachCookiesToResp({
     res,
