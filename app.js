@@ -7,6 +7,7 @@ import notFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authRouter from "./routes/authRouter.js";
 import userRouter from "./routes/userRouter.js";
+import productRouter from "./routes/productRouter.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/products", productRouter);
 
 // custom middlewares
 app.use(notFound); // 404 - always before errorHandlerMiddleware
