@@ -62,7 +62,7 @@ const ProductSchema = new mongoose.Schema(
     colors: {
       type: [String],
       required: true,
-      //   default: ["#222"],
+      default: ["#222"],
       //   validate: {
       //     validator(value) {
       //       return value.length > 0;
@@ -107,7 +107,7 @@ const ProductSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true
+    timestamps: true,
   },
 );
 

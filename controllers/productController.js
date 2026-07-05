@@ -1,5 +1,10 @@
+import { StatusCodes } from "http-status-codes";
+import Product from "../models/product.model.js";
+
 async function createProduct(req, res) {
-  res.send("createProduct");
+  req.body.user = req.user.userId;
+  const product = await Product.create(req.body);
+  res.status(StatusCodes.CREATED).json({ created_product: product });
 }
 
 async function getAllProducts(req, res) {
