@@ -8,6 +8,7 @@ import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authRouter from "./routes/authRouter.js";
 import userRouter from "./routes/userRouter.js";
 import productRouter from "./routes/productRouter.js";
+import fileUpload from "express-fileupload";
 
 const app = express();
 
@@ -17,6 +18,10 @@ app.use(express.json());
 // others
 app.use(morgan("tiny"));
 app.use(cookieParser(process.env.JWT_SECRET));
+
+// make PUBLIC folder static for image upload
+app.use(express.static("./public")); // default image
+app.use(fileUpload());
 
 // routes
 app.get("/", (req, res) => {

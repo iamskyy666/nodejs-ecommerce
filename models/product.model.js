@@ -26,7 +26,7 @@ const ProductSchema = new mongoose.Schema(
     image: {
       type: String,
       required: [true, "🔴 Please provide product image!"],
-      default: "/uploads/default-product.jpg",
+      default: "/uploads/example.jpeg",
     },
 
     category: {
