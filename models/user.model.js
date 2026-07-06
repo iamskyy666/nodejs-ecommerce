@@ -1,3 +1,8 @@
+// ============================================================================
+// User Model
+// Defines the application's users, roles, and authentication data.
+// ============================================================================
+
 import mongoose from "mongoose";
 import validator from "validator";
 import { hash, genSalt, compare } from "bcrypt";

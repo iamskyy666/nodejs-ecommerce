@@ -1,3 +1,8 @@
+// ============================================================================
+// Product Model
+// Defines products available in the e-commerce catalog.
+// ============================================================================
+
 import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema(
