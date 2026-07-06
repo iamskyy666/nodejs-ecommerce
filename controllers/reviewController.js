@@ -41,14 +41,22 @@ async function createReview(req, res) {
 // @route   GET /api/v1/reviews
 // @access  Public
 async function getAllReviews(req, res) {
-  res.send("getAllReviews()");
+  const reviews = await Review.find({});
+  res.status(StatusCodes.OK).json({
+    msg: `Fetched all ${reviews.length} review(s)`,
+    reviews,
+  });
 }
 
 // @desc    Get a single review by ID
 // @route   GET /api/v1/reviews/:id
 // @access  Public
 async function getSingleReview(req, res) {
-  res.send("getSingleReview()");
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    throw new NotFoundError(`🔴 Review Not Found!`);
+  }
+  res.status(StatusCodes.OK).json({ fetched_review: review });
 }
 
 // @desc    Update a review
