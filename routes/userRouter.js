@@ -8,6 +8,7 @@ import {
 } from "../controllers/userController.js";
 import authenticateUser from "../middleware/authentication.js";
 import authorizePermissions from "../middleware/authorization.js";
+import authRouter from "./authRouter.js";
 
 const userRouter = Router();
 
@@ -19,7 +20,7 @@ const userRouter = Router();
 // Admin Routes
 // ------------------------------------------------------------------
 
-authRouter.get(
+userRouter.get(
   "/",
   authenticateUser,
   authorizePermissions("admin"),
