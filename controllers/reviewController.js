@@ -8,6 +8,7 @@ import Review from "../models/review.model.js";
 import Product from "../models/product.model.js";
 import NotFoundError from "../errors/not-found.js";
 import BadRequestError from "../errors/bad-request.js";
+import checkPermissions from "../utils/checkPermissions.js";
 
 // @desc    Create a new review
 // @route   POST /api/v1/reviews
@@ -70,7 +71,20 @@ async function updateReview(req, res) {
 // @route   DELETE /api/v1/reviews/:id
 // @access  Private
 async function deleteReview(req, res) {
-  res.send("deleteReview()");
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    throw new NotFoundError(`🔴 Review Not Found!`);
+  }
+
+  // check permissions
+  checkPermissions(req.user, review.user);
+
+  // await review.remove() // Old approach
+  await review.deleteOne(); // Modern approach
+
+  res
+    .status(StatusCodes.OK)
+    .json({ msg: "🟢 Review deleted successfully!", deleted_review: review });
 }
 
 export {
