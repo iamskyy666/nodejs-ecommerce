@@ -1,3 +1,8 @@
+// ============================================================================
+// Product Controller
+// Handles product management operations.
+// ============================================================================
+
 import { StatusCodes } from "http-status-codes";
 import Product from "../models/product.model.js";
 import NotFoundError from "../errors/not-found.js";
@@ -5,49 +10,77 @@ import BadRequestError from "../errors/bad-request.js";
 import crypto from "crypto";
 import path from "path";
 
-//! EsModules don't have __dirname directly
+// ES Modules don't support __dirname directly.
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// @desc    Create a new product
+// @route   POST /api/v1/products
+// @access  Private/Admin
 async function createProduct(req, res) {
+  // Associate the product with the authenticated admin.
   req.body.user = req.user.userId;
+
   const product = await Product.create(req.body);
-  res.status(StatusCodes.CREATED).json({ created_product: product });
+
+  res.status(StatusCodes.CREATED).json({
+    created_product: product,
+  });
 }
 
+// @desc    Get all products
+// @route   GET /api/v1/products
+// @access  Public
 async function getAllProducts(_, res) {
   const products = await Product.find({});
+
   res.status(StatusCodes.OK).json({
-    msg: `✅ Fetched All ${products.length} Products Successfully!`,
+    msg: `✅ Fetched all ${products.length} products successfully!`,
     all_products: products,
   });
 }
 
+// @desc    Get a single product by ID
+// @route   GET /api/v1/products/:id
+// @access  Public
 async function getSingleProduct(req, res) {
   const product = await Product.findById(req.params.id);
+
   if (!product) {
     throw new NotFoundError("🔴 Product not found!");
   }
+
   res.status(StatusCodes.OK).json({
     product,
   });
 }
 
+// @desc    Update a product
+// @route   PATCH /api/v1/products/:id
+// @access  Private/Admin
 async function updateProduct(req, res) {
   const product = await Product.findOneAndUpdate(
     { _id: req.params.id },
     req.body,
-    { new: true, runValidators: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   );
+
   if (!product) {
     throw new NotFoundError("🔴 Product not found!");
   }
+
   res.status(StatusCodes.OK).json({
     updated_product: product,
   });
 }
 
+// @desc    Delete a product
+// @route   DELETE /api/v1/products/:id
+// @access  Private/Admin
 async function deleteProduct(req, res) {
   const product = await Product.findByIdAndDelete(req.params.id);
 
@@ -60,6 +93,10 @@ async function deleteProduct(req, res) {
   });
 }
 
+
+// @desc    Upload a product image
+// @route   POST /api/v1/products/upload-image
+// @access  Private/Admin
 async function uploadProductImage(req, res) {
   //!🔹 Check if an image was uploaded
   if (!req.files || !req.files.image) {

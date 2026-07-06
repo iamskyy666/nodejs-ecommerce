@@ -12,11 +12,21 @@ import authorizePermissions from "../middleware/authorization.js";
 
 const productRouter = Router();
 
-// Public routes
+// ============================================================================
+// Product Routes
+// Base Route: /api/v1/products
+// ============================================================================
+
+// Public Routes
+// ------------------------------------------------------------------
+
 productRouter.get("/", getAllProducts);
+
 productRouter.get("/:id", getSingleProduct);
 
-// Admin routes
+// Admin Routes
+// ------------------------------------------------------------------
+
 productRouter.post(
   "/",
   authenticateUser,
