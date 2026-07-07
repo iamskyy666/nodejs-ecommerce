@@ -42,7 +42,15 @@ async function createReview(req, res) {
 // @route   GET /api/v1/reviews
 // @access  Public
 async function getAllReviews(req, res) {
-  const reviews = await Review.find({});
+  const reviews = await Review.find({})
+    .populate({
+      path: "product",
+      select: "name company price",
+    })
+    .populate({
+      path: "user",
+      select: "name",
+    });
   res.status(StatusCodes.OK).json({
     msg: `Fetched all ${reviews.length} review(s)`,
     reviews,
@@ -53,7 +61,14 @@ async function getAllReviews(req, res) {
 // @route   GET /api/v1/reviews/:id
 // @access  Public
 async function getSingleReview(req, res) {
-  const review = await Review.findById(req.params.id);
+  const review = await Review.findById(req.params.id).populate({
+      path: "product",
+      select: "name company price",
+    })
+    .populate({
+      path: "user",
+      select: "name",
+    });
   if (!review) {
     throw new NotFoundError(`🔴 Review Not Found!`);
   }
