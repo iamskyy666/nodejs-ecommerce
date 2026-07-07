@@ -64,7 +64,24 @@ async function getSingleReview(req, res) {
 // @route   PATCH /api/v1/reviews/:id
 // @access  Private
 async function updateReview(req, res) {
-  res.send("updateReview()");
+  const { rating, title, comment } = req.body;
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    throw new NotFoundError(`🔴 Review Not Found!`);
+  }
+
+  // check permissions
+  checkPermissions(req.user, review.user);
+
+  review.rating = rating;
+  review.title = title;
+  review.comment = comment;
+
+  await review.save();
+
+  res
+    .status(StatusCodes.OK)
+    .json({ msg: "🟢 Review updated successfully!", updated_review: review });
 }
 
 // @desc    Delete a review
