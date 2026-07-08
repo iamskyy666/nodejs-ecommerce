@@ -45,7 +45,7 @@ async function getAllProducts(_, res) {
 // @route   GET /api/v1/products/:id
 // @access  Public
 async function getSingleProduct(req, res) {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).populate('reviews');
 
   if (!product) {
     throw new NotFoundError("🔴 Product not found!");
