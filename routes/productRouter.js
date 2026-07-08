@@ -9,6 +9,7 @@ import {
 } from "../controllers/productController.js";
 import authenticateUser from "../middleware/authentication.js";
 import authorizePermissions from "../middleware/authorization.js";
+import { getSingleProductReviews } from "../controllers/reviewController.js";
 
 const productRouter = Router();
 
@@ -23,6 +24,8 @@ const productRouter = Router();
 productRouter.get("/", getAllProducts);
 
 productRouter.get("/:id", getSingleProduct);
+
+productRouter.get("/:id/reviews", getSingleProductReviews); //! from reviewController()
 
 // Admin Routes
 // ------------------------------------------------------------------

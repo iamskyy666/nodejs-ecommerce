@@ -61,7 +61,8 @@ async function getAllReviews(req, res) {
 // @route   GET /api/v1/reviews/:id
 // @access  Public
 async function getSingleReview(req, res) {
-  const review = await Review.findById(req.params.id).populate({
+  const review = await Review.findById(req.params.id)
+    .populate({
       path: "product",
       select: "name company price",
     })
@@ -119,10 +120,36 @@ async function deleteReview(req, res) {
     .json({ msg: "🟢 Review deleted successfully!", deleted_review: review });
 }
 
+// @desc    Get products with only 1 review
+// @route   GET /api/products/:id/reviews
+// @access  Public
+async function getSingleProductReviews(req, res) {
+  const { id: productId } = req.params;
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw new NotFoundError(`🔴 No product found with ID: ${productId}`);
+  }
+
+  const reviews = await Review.find({
+    product: productId,
+  }).populate({
+    path: "user",
+    select: "name",
+  });
+
+  res.status(StatusCodes.OK).json({
+    count: reviews.length,
+    reviews,
+  });
+}
+
 export {
   createReview,
   getAllReviews,
   getSingleReview,
   updateReview,
   deleteReview,
+  getSingleProductReviews,
 };
