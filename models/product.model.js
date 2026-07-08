@@ -123,8 +123,19 @@ ProductSchema.virtual("reviews", {
   localField: "_id",
   foreignField: "product",
   justOne: false,
-  // match: { rating: 5 }, // Optional.
+  // match: { rating: 5 }, //! Optional.
 });
+
+// Make sure the deleting a product deletes all related reviews too.
+ProductSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function () {
+    await this.model("Review").deleteMany({
+      product: this._id,
+    });
+  },
+);
 
 const Product = mongoose.model("Product", ProductSchema);
 

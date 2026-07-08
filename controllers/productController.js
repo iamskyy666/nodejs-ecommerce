@@ -45,7 +45,7 @@ async function getAllProducts(_, res) {
 // @route   GET /api/v1/products/:id
 // @access  Public
 async function getSingleProduct(req, res) {
-  const product = await Product.findById(req.params.id).populate('reviews');
+  const product = await Product.findById(req.params.id).populate("reviews");
 
   if (!product) {
     throw new NotFoundError("🔴 Product not found!");
@@ -82,17 +82,18 @@ async function updateProduct(req, res) {
 // @route   DELETE /api/v1/products/:id
 // @access  Private/Admin
 async function deleteProduct(req, res) {
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findById(req.params.id);
 
   if (!product) {
     throw new NotFoundError("🔴 Product not found!");
   }
 
+  await product.deleteOne();
+
   res.status(StatusCodes.OK).json({
     msg: "🟢 Product removed successfully!",
   });
 }
-
 
 // @desc    Upload a product image
 // @route   POST /api/v1/products/upload-image

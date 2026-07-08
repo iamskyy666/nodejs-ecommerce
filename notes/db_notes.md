@@ -716,3 +716,654 @@ As we build our API, a few indexes will be especially valuable:
 * `createdAt` if we often sort by newest items.
 
 For `populate()`, use it when we need related information in the response—for example, showing the reviewer's name on a product page. Avoid populating large relationships by default; fetch only the fields we need (e.g., `"name email"` or `"-password"`), as this keeps responses smaller and improves performance.
+
+---
+
+Mongoose Virtuals are one of the most elegant features of Mongoose. They're used extensively in real-world applications, especially in e-commerce, social media, and blogging platforms.
+
+Let's understand them from the ground up.
+
+
+# What is a Virtual?
+
+A **Virtual** is a property that **does not exist in the MongoDB document** but **appears to exist** when we work with our Mongoose model.
+
+Think of it as a **computed field**.
+
+For example, suppose a user document looks like this:
+
+```json
+{
+  "_id": "687f...",
+  "firstName": "Soumadip",
+  "lastName": "Banerjee"
+}
+```
+
+MongoDB stores only these fields.
+
+But in our application, we might want:
+
+```text
+fullName
+
+↓
+
+Soumadip Banerjee
+```
+
+We don't want to save `fullName` because it's just:
+
+```text
+firstName + lastName
+```
+
+That's exactly what a Virtual is for.
+
+---
+
+# Without Virtual
+
+Suppose every time we need the full name, we do:
+
+```js
+const fullName = `${user.firstName} ${user.lastName}`;
+```
+
+Imagine doing this in:
+
+* Login
+* Profile
+* Orders
+* Reviews
+* Admin Dashboard
+
+We'll keep repeating ourselves.
+
+---
+
+# With Virtual
+
+```js
+UserSchema.virtual("fullName").get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+```
+
+Now:
+
+```js
+const user = await User.findById(id);
+
+console.log(user.fullName);
+```
+
+Output:
+
+```text
+Soumadip Banerjee
+```
+
+Notice:
+
+There is **no** `fullName` field inside MongoDB.
+
+---
+
+# Visual Representation
+
+MongoDB
+
+```text
+Users Collection
+
+-----------------------------
+
+_id
+firstName
+lastName
+
+-----------------------------
+```
+
+Mongoose
+
+```text
+User Document
+
+↓
+
+_id
+
+↓
+
+firstName
+
+↓
+
+lastName
+
+↓
+
+Virtual
+
+↓
+
+fullName
+```
+
+The Virtual exists only in memory.
+
+---
+
+# Does it get saved?
+
+No.
+
+MongoDB document:
+
+```json
+{
+  "firstName": "Soumadip",
+  "lastName": "Banerjee"
+}
+```
+
+Even after:
+
+```js
+console.log(user.fullName);
+```
+
+Database remains:
+
+```json
+{
+  "firstName": "Soumadip",
+  "lastName": "Banerjee"
+}
+```
+
+No new field appears.
+
+---
+
+# Why?
+
+Because storing:
+
+```text
+fullName
+```
+
+would duplicate information.
+
+Suppose:
+
+```text
+firstName
+
+↓
+
+John
+```
+
+Later:
+
+```text
+firstName
+
+↓
+
+Mike
+```
+
+Now
+
+```text
+fullName
+```
+
+would become wrong unless updated too.
+
+Virtuals avoid this inconsistency by computing the value whenever it's accessed.
+
+---
+
+# Getter Virtuals
+
+Most common.
+
+```js
+UserSchema.virtual("fullName").get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+```
+
+Whenever:
+
+```js
+user.fullName
+```
+
+is accessed,
+
+Mongoose executes:
+
+```js
+return `${this.firstName} ${this.lastName}`;
+```
+
+---
+
+# Another Example
+
+Product
+
+```js
+{
+   price:1200,
+   discount:15
+}
+```
+
+Virtual
+
+```js
+ProductSchema.virtual("discountPrice").get(function () {
+  return this.price - (this.price * this.discount) / 100;
+});
+```
+
+Database
+
+```text
+price
+
+↓
+
+1200
+
+discount
+
+↓
+
+15
+```
+
+Virtual
+
+```text
+discountPrice
+
+↓
+
+1020
+```
+
+Never stored.
+
+---
+
+# Virtual Setter
+
+Virtuals can also set values.
+
+Suppose:
+
+```text
+fullName
+
+↓
+
+John Doe
+```
+
+Instead of manually splitting:
+
+```js
+user.firstName = "John";
+user.lastName = "Doe";
+```
+
+Use:
+
+```js
+UserSchema.virtual("fullName").set(function (value) {
+  const parts = value.split(" ");
+
+  this.firstName = parts[0];
+  this.lastName = parts[1];
+});
+```
+
+Now:
+
+```js
+user.fullName = "John Doe";
+```
+
+Automatically becomes:
+
+```text
+firstName
+
+↓
+
+John
+
+lastName
+
+↓
+
+Doe
+```
+
+---
+
+# Why don't Virtuals appear in JSON?
+
+Suppose:
+
+```js
+res.json(user);
+```
+
+Output:
+
+```json
+{
+  "_id": "...",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+No:
+
+```text
+fullName
+```
+
+Why?
+
+Because Virtuals are disabled by default when converting documents to JSON or plain objects.
+
+---
+
+Enable them:
+
+```js
+const UserSchema = new mongoose.Schema(
+  {
+    ...
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+```
+
+Now:
+
+```js
+res.json(user);
+```
+
+becomes:
+
+```json
+{
+  "_id": "...",
+  "firstName": "John",
+  "lastName": "Doe",
+  "fullName": "John Doe"
+}
+```
+
+Still not stored in MongoDB.
+
+---
+
+# The Most Important Use: Reverse Populate
+
+This is where Virtuals become incredibly powerful.
+
+Suppose:
+
+Users
+
+```text
+User
+
+↓
+
+_id
+
+1
+
+↓
+
+John
+```
+
+Products
+
+```text
+Product
+
+↓
+
+createdBy
+
+1
+```
+
+One user
+
+↓
+
+Many products
+
+---
+
+Normally:
+
+Product has:
+
+```js
+createdBy: {
+   type: mongoose.Schema.Types.ObjectId,
+   ref: "User"
+}
+```
+
+Easy:
+
+```js
+Product.find().populate("createdBy");
+```
+
+But what if we have a **User** and want **all products created by that user**?
+
+The `User` document has no `products` field.
+
+---
+
+Virtual Populate
+
+```js
+UserSchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+```
+
+Now:
+
+```js
+const user = await User.findById(id).populate("products");
+```
+
+Output:
+
+```json
+{
+  "name": "John",
+  "products": [
+    {
+      "name": "iPhone"
+    },
+    {
+      "name": "MacBook"
+    },
+    {
+      "name": "iPad"
+    }
+  ]
+}
+```
+
+Notice:
+
+MongoDB never stored:
+
+```text
+products:[...]
+```
+
+Mongoose generated it dynamically.
+
+---
+
+# Example in our E-Commerce API
+
+Review schema:
+
+```js
+user: {
+   type: mongoose.Schema.Types.ObjectId,
+   ref: "User"
+}
+
+product: {
+   type: mongoose.Schema.Types.ObjectId,
+   ref: "Product"
+}
+```
+
+Product schema can define:
+
+```js
+ProductSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "product",
+});
+```
+
+Now:
+
+```js
+const product = await Product.findById(id).populate("reviews");
+```
+
+Returns:
+
+```json
+{
+  "name": "MacBook",
+  "price": 189999,
+  "reviews": [
+    {
+      "rating": 5
+    },
+    {
+      "rating": 4
+    }
+  ]
+}
+```
+
+No `reviews` array is stored inside the product document.
+
+---
+
+# Virtual vs Real Field
+
+| Feature                     | Real Field | Virtual            |
+| --------------------------- | ---------- | ------------------ |
+| Stored in MongoDB           | ✅          | ❌                  |
+| Takes storage space         | ✅          | ❌                  |
+| Can be queried with MongoDB | ✅          | ❌                  |
+| Can be indexed              | ✅          | ❌                  |
+| Computed dynamically        | ❌          | ✅                  |
+| Appears in JSON by default  | ✅          | ❌ (unless enabled) |
+
+---
+
+# Virtual vs Populate
+
+This is where many beginners get confused.
+
+### Normal `populate()`
+
+```js
+Review.find().populate("user");
+```
+
+We already have a `user` field containing an `ObjectId`. Mongoose replaces that ID with the referenced `User` document.
+
+### Virtual Populate
+
+```js
+User.findById(id).populate("reviews");
+```
+
+There is **no** `reviews` field in the `User` document. The virtual tells Mongoose how to find all `Review` documents whose `user` field matches the current user's `_id`.
+
+---
+
+# Performance considerations
+
+Virtual getters (like `fullName`) are very cheap—they're just JavaScript functions.
+
+Virtual populates, however, involve additional database queries. If a user has thousands of related documents (e.g., reviews or orders), populating them all can become expensive.
+
+A few best practices:
+
+* Use virtual getters for computed values such as `fullName`, `discountPrice`, or `isInStock`.
+* Use virtual populate when we need reverse relationships that we don't want to store in MongoDB.
+* Populate only when the related data is actually needed.
+* Use `select` to limit populated fields, for example:
+
+  ```js
+  await User.findById(id).populate({
+    path: "products",
+    select: "name price image",
+  });
+  ```
+* Consider `count: true` for virtual populate if we only need the number of related documents:
+
+  ```js
+  UserSchema.virtual("productCount", {
+    ref: "Product",
+    localField: "_id",
+    foreignField: "createdBy",
+    count: true,
+  });
+  ```
+
+## How we'll use Virtuals in our E-Commerce API
+
+Based on the project we're building, the most practical virtuals are:
+
+* **Product → Reviews**: a virtual populate to fetch all reviews for a product.
+* **Product → Number of reviews**: a virtual with `count: true` if we only need the total.
+* **User → Products**: if we later build a seller dashboard showing all products created by a user.
+* **Computed values** like discounted price or formatted names, if those values don't belong in the database.
+
+These are the kinds of virtuals we'll commonly see in production Mongoose applications.
+
