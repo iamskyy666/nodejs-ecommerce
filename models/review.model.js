@@ -48,7 +48,29 @@ const ReviewSchema = new mongoose.Schema(
 );
 
 ReviewSchema.statics.calculateAvgRating = async function (productId) {
-  console.log(`productId: ${productId}`);
+  const result = await this.aggregate([
+    { $match: { product: productId } },
+    {
+      $group: {
+        _id: "$product",
+        averageRating: { $avg: "$rating" },
+        numOfReviews: { $sum: 1 },
+      },
+    },
+  ]);
+  console.log("☑️ aggr. result:", result);
+  try {
+    await this.model("Product").findOneAndUpdate(
+      { _id: productId },
+      {
+        averageRating: Math.ceil(result[0]?.averageRating || 0),
+        numOfReviews: result[0]?.numOfReviews || 0,
+      },
+    );
+  } catch (err) {
+    console.log("ERROR:", err);
+    process.exit(1);
+  }
 };
 
 //💡 User can leave only 1 review per product
@@ -61,13 +83,10 @@ ReviewSchema.post("save", async function () {
 });
 
 ReviewSchema.post("remove", async function () {
-   await this.constructor.calculateAvgRating(this.product);
+  await this.constructor.calculateAvgRating(this.product);
   console.log(`Post-Remove hook called in ReviewSchema ✅`);
 });
 
 const Review = mongoose.model("Review", ReviewSchema);
 
 export default Review;
-
-// 6a4a6b85267e647fe3fa7421
-// 6a4b8de685c852f356d40306
