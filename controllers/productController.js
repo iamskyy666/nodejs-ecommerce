@@ -36,7 +36,7 @@ async function getAllProducts(_, res) {
   const products = await Product.find({});
 
   res.status(StatusCodes.OK).json({
-    msg: `✅ Fetched all ${products.length} products successfully!`,
+    msg: `✅ Fetched all ${products.length} product(s) successfully!`,
     all_products: products,
   });
 }

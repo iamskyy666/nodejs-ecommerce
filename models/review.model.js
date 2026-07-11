@@ -47,9 +47,27 @@ const ReviewSchema = new mongoose.Schema(
   },
 );
 
+ReviewSchema.statics.calculateAvgRating = async function (productId) {
+  console.log(`productId: ${productId}`);
+};
+
 //💡 User can leave only 1 review per product
 ReviewSchema.index({ product: 1, user: 1 }, { unique: true });
+
+// static method - directly on the Schema
+ReviewSchema.post("save", async function () {
+  await this.constructor.calculateAvgRating(this.product);
+  console.log(`Post-Save hook called in ReviewSchema ☑️`);
+});
+
+ReviewSchema.post("remove", async function () {
+   await this.constructor.calculateAvgRating(this.product);
+  console.log(`Post-Remove hook called in ReviewSchema ✅`);
+});
 
 const Review = mongoose.model("Review", ReviewSchema);
 
 export default Review;
+
+// 6a4a6b85267e647fe3fa7421
+// 6a4b8de685c852f356d40306
