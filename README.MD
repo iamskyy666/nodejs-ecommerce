@@ -1,76 +1,116 @@
 # 🛒 E-Commerce REST API
 
-A production-ready RESTful E-Commerce API built with **Node.js**, **Express.js**, and **MongoDB**.
+![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?logo=node.js\&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express\&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb\&logoColor=white)
+![License](https://img.shields.io/badge/License-ISC-blue)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 
-This project demonstrates authentication, authorization, product management, reviews, orders, image uploads, API security, and interactive API documentation using Swagger.
+A production-ready **RESTful E-Commerce API** built with **Node.js**, **Express.js 5**, and **MongoDB Atlas**.
+
+This project demonstrates modern backend development practices including **JWT Authentication**, **Role-Based Authorization**, **Product Management**, **Reviews**, **Orders**, **Image Uploads**, **API Security**, and **Interactive API Documentation** using **Swagger UI**.
 
 ---
 
-## 🚀 Features
+# 🌐 Live Demo
 
-### Authentication & Authorization
+### 🚀 Live API
+
+https://nodejs-ecommerce-api-xg1q.onrender.com
+
+### 📖 Swagger Documentation
+
+https://nodejs-ecommerce-api-xg1q.onrender.com/api-docs
+
+---
+
+# ✨ Features
+
+## 🔐 Authentication & Authorization
 
 * JWT Authentication
 * HTTP-Only Cookie Authentication
-* User Registration & Login
-* Logout Functionality
-* Role-based Authorization (Admin/User)
+* User Registration
+* User Login
+* Logout
+* Role-Based Authorization (Admin/User)
+* Protected Routes
 
-### User Management
+---
+
+## 👤 User Management
 
 * View Current User
 * Update User Profile
 * Update Password
-* Get Single User
+* Get Single User (Admin)
 * Get All Users (Admin)
 
-### Product Management
+---
+
+## 📦 Product Management
 
 * Create Product
 * Update Product
 * Delete Product
 * Get Single Product
 * Get All Products
-* Product Image Upload
+* Upload Product Images
+* Product Image Validation
 
-### Review System
+---
 
-* Create Review
-* Update Review
-* Delete Review
+## ⭐ Review System
+
+* Create Reviews
+* Update Reviews
+* Delete Reviews
 * Get Product Reviews
 * Prevent Duplicate Reviews
-* Populate User & Product Details
+* Populate User Information
+* Populate Product Information
 
-### Order Management
+---
 
-* Create Order
+## 🛒 Order Management
+
+* Create Orders
 * Get Current User Orders
 * Get Single Order
 * Get All Orders (Admin)
 * Update Order Status
 
-### Database Features
+---
+
+## 🗄️ Database Features
 
 * MongoDB Aggregation Pipelines
 * Mongoose Populate
-* Mongoose Virtuals
+* Mongoose Virtual Populate
+* Mongoose Middleware
 * Schema Validation
-* Middleware Hooks
 * Password Hashing with bcrypt
+* Model Relationships
 
-### Security
+---
 
-* Helmet
+## 🛡️ Security
+
+* Helmet Security Headers
 * CORS
 * Rate Limiting
 * HTTP-Only Cookies
 * JWT Verification
 * Protected Routes
+* Input Validation
 
-### Documentation
+---
 
-* Interactive Swagger API Documentation
+## 📄 Documentation
+
+* Interactive Swagger UI
+* Organized REST Endpoints
+* Built-in Request/Response Testing
 
 ---
 
@@ -79,7 +119,7 @@ This project demonstrates authentication, authorization, product management, rev
 ## Backend
 
 * Node.js
-* Express.js
+* Express.js 5
 
 ## Database
 
@@ -98,7 +138,7 @@ This project demonstrates authentication, authorization, product management, rev
 * cookie-parser
 * CORS
 
-## File Upload
+## File Uploads
 
 * express-fileupload
 
@@ -140,45 +180,51 @@ ecommerce-api/
 
 # ⚙️ Installation
 
-Clone the repository
+## Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/nodejs-ecommerce.git
+git clone https://github.com/iamskyy666/nodejs-ecommerce.git
 ```
-
-Move into the project
 
 ```bash
 cd nodejs-ecommerce
 ```
 
-Install dependencies
+---
+
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-Create a `.env` file
+---
+
+## Create a `.env` file
 
 ```env
 PORT=5000
 
-MONGO_URI=<your_mongodb_connection_string>
+MONGO_URI=your_mongodb_connection_string
 
-JWT_SECRET=<your_secret_key>
+JWT_SECRET=your_super_secret_key
 
 JWT_LIFETIME=1d
 
 NODE_ENV=development
 ```
 
-Run the development server
+---
+
+## Run the development server
 
 ```bash
 npm run dev
 ```
 
-Production
+---
+
+## Run in production
 
 ```bash
 npm start
@@ -188,81 +234,47 @@ npm start
 
 # 📖 API Documentation
 
-Swagger UI is available at
+After starting the server locally, open:
 
-```
+```text
 http://localhost:5000/api-docs
 ```
 
-The documentation provides:
+The interactive Swagger documentation allows you to:
 
-* Request Parameters
-* Request Body
-* Response Codes
-* Interactive Testing
-* Endpoint Descriptions
-
----
-
-# 📌 API Modules
-
-## Authentication
-
-* Register User
-* Login User
-* Logout User
-
-## Users
-
-* Show Current User
-* Update Profile
-* Update Password
-* Get User
-* Get All Users
-
-## Products
-
-* Get Products
-* Get Product
-* Create Product
-* Update Product
-* Delete Product
-* Upload Product Image
-
-## Reviews
-
-* Create Review
-* Update Review
-* Delete Review
-* Get Reviews
-* Get Product Reviews
-
-## Orders
-
-* Create Order
-* Get Order
-* Get User Orders
-* Get All Orders
-* Update Order
+* Explore all endpoints
+* Test API requests
+* View request bodies
+* View response schemas
+* Understand authentication requirements
 
 ---
 
-# 🔐 Security
+# 🔐 Authentication
 
-The API includes multiple security layers:
+Protected endpoints require authentication.
+
+After logging in successfully, the API stores a signed **HTTP-Only JWT Cookie**, which is automatically used for subsequent authenticated requests.
+
+Role-based permissions ensure that administrative operations are restricted to authorized users.
+
+---
+
+# 🛡️ Security Features
 
 * Password hashing using bcrypt
 * JWT Authentication
 * HTTP-Only Cookies
-* Protected Routes
-* Role-based Access Control
-* Rate Limiting
+* Role-Based Authorization
 * Helmet Security Headers
+* CORS Protection
+* Rate Limiting
 * Input Validation
+* Secure Cookie Support
 
 ---
 
-# 📦 Packages Used
+# 📦 Key Dependencies
 
 * express
 * mongoose
@@ -274,28 +286,30 @@ The API includes multiple security layers:
 * cors
 * express-rate-limit
 * express-fileupload
-* morgan
 * validator
+* morgan
 * swagger-jsdoc
 * swagger-ui-express
 
 ---
 
+# 🚀 Future Improvements
+
+* Stripe Payment Integration
+* Email Verification
+* Forgot/Reset Password
+* Docker Support
+* Unit & Integration Testing
+* GitHub Actions CI/CD
+* Redis Caching
+* Search, Filtering & Pagination
+* Order History Analytics
+
+---
+
 # 📷 Screenshots
 
-You can add screenshots here.
-
-## Swagger UI
-
-![Swagger](images/swagger.png)
-
-## Postman Collection
-
-![Postman](images/postman.png)
-
-## MongoDB Atlas
-
-![MongoDB](images/mongodb.png)
+Screenshots of the application, Swagger documentation, MongoDB Atlas collections, and Postman API testing will be added soon.
 
 ---
 
@@ -303,13 +317,22 @@ You can add screenshots here.
 
 **Soumadip Banerjee**
 
-Backend Developer | MERN Stack Developer
+Backend Developer • MERN Stack Developer
 
 GitHub:
+
 https://github.com/iamskyy666
+
+---
+
+# ⭐ Support
+
+If you found this project useful, consider giving it a **⭐ Star** on GitHub.
+
+It helps others discover the project and motivates future improvements.
 
 ---
 
 # 📄 License
 
-This project is licensed under the ISC License.
+This project is licensed under the **ISC License**.

@@ -276,7 +276,7 @@ Developed by <strong>Soumadip Banerjee</strong>
 GitHub:
 <a
 style="color:#60a5fa"
-href="https://github.com/YOUR_GITHUB_USERNAME"
+href="https://github.com/iamskyy666"
 target="_blank">
 https://github.com/iamskyy666
 </a>
