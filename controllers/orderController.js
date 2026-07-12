@@ -7,6 +7,13 @@ import { StatusCodes } from "http-status-codes";
 import Product from "../models/product.model.js";
 import NotFoundError from "../errors/not-found.js";
 import BadRequestError from "../errors/bad-request.js";
+import Order from "../models/order.model.js";
+
+// fake STRIPE implementation
+async function fakeStripeAPI({ amount, currency }) {
+  const client_secret = "someRandomValue";
+  return { client_secret, amount };
+}
 
 // @desc    Get all orders
 // @route   GET /api/v1/orders
@@ -42,7 +49,7 @@ async function createOrder(req, res) {
   }
 
   let orderItems = [];
-  let subTotal = 0;
+  let subtotal = 0;
 
   for (const item of cartItems) {
     const dbProduct = await Product.findOne({ _id: item.product });
@@ -63,14 +70,36 @@ async function createOrder(req, res) {
     // add item to order
     orderItems = [...orderItems, singleOrderItem];
 
-    // calculate subTotal
-    subTotal += item.amount * price;
+    // calculate subtotal
+    subtotal += item.amount * price;
   }
+  // calculate total
+  const total = tax + shippingFee + subtotal;
 
-     console.log("orderItems:", orderItems);
-     console.log("subTotal:", subTotal);
+  // get client secret - fake stripe implementation
+  const paymentIntent = await fakeStripeAPI({
+    amount: total,
+    currency: "usd",
+  });
 
-  res.status(StatusCodes.OK).send("createOrder");
+  // finally, create the order
+  const order = await Order.create({
+    orderItems,
+    total,
+    subtotal,
+    tax,
+    shippingFee,
+    clientSecret: paymentIntent.client_secret,
+    user: req.user.userId,
+  });
+
+  res
+    .status(StatusCodes.CREATED)
+    .json({
+      message: "✅ Order placed successfully!",
+      order,
+      clientSecret: order.clientSecret,
+    });
 }
 
 // @desc    Update an order

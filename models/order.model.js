@@ -64,7 +64,7 @@ const OrderSchema = new mongoose.Schema(
       min: 0,
     },
 
-    cartItems: {
+    orderItems: {
       type: [SingleOrderItemSchema],
       validate: {
         validator(items) {
