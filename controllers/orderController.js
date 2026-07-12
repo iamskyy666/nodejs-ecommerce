@@ -8,6 +8,7 @@ import Product from "../models/product.model.js";
 import NotFoundError from "../errors/not-found.js";
 import BadRequestError from "../errors/bad-request.js";
 import Order from "../models/order.model.js";
+import checkPermissions from "../utils/checkPermissions.js";
 
 // fake STRIPE implementation
 async function fakeStripeAPI({ amount, currency }) {
@@ -19,21 +20,35 @@ async function fakeStripeAPI({ amount, currency }) {
 // @route   GET /api/v1/orders
 // @access  Private/Admin
 async function getAllOrders(req, res) {
-  res.status(StatusCodes.OK).send("getAllOrders");
+  const orders = await Order.find({});
+  res
+    .status(StatusCodes.OK)
+    .json({ msg: `Fetched All ${orders.length} order(s) ✅`, orders });
 }
 
 // @desc    Get current user's orders
 // @route   GET /api/v1/orders/showAllMyOrders
 // @access  Private
 async function getCurrentUserOrders(req, res) {
-  res.status(StatusCodes.OK).send("getCurrentUserOrders");
+  const orders = await Order.find({ user: req.user.userId });
+  res
+    .status(StatusCodes.OK)
+    .json({ "my-orders": orders, count: orders.length });
 }
 
 // @desc    Get a single order
 // @route   GET /api/v1/orders/:id
 // @access  Private
 async function getSingleOrder(req, res) {
-  res.status(StatusCodes.OK).send("getSingleOrder");
+  const { id: orderId } = req.params;
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new NotFoundError();
+  }
+
+  checkPermissions(req.user, order.user);
+
+  res.status(StatusCodes.OK).json(order);
 }
 
 // @desc    Create a new order
@@ -93,20 +108,31 @@ async function createOrder(req, res) {
     user: req.user.userId,
   });
 
-  res
-    .status(StatusCodes.CREATED)
-    .json({
-      message: "✅ Order placed successfully!",
-      order,
-      clientSecret: order.clientSecret,
-    });
+  res.status(StatusCodes.CREATED).json({
+    message: "✅ Order placed successfully!",
+    order,
+    clientSecret: order.clientSecret,
+  });
 }
 
 // @desc    Update an order
 // @route   PATCH /api/v1/orders/:id
 // @access  Private
 async function updateOrder(req, res) {
-  res.status(StatusCodes.OK).send("updateOrder");
+  const { id: orderId } = req.params;
+  const { paymentIntentId } = req.body;
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new NotFoundError();
+  }
+
+  checkPermissions(req.user, order.user);
+
+  order.paymentIntentId = paymentIntentId;
+  order.status = "paid";
+
+  await order.save();
+  res.status(StatusCodes.OK).json({ msg: "Order updated ✅", order });
 }
 
 export {
