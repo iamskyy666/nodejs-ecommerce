@@ -1,3 +1,16 @@
+/**
+ * @openapi
+ * /products:
+ *   get:
+ *     tags:
+ *       - Products
+ *     summary: Get all products
+ *     description: Returns a list of all available products.
+ *     responses:
+ *       200:
+ *         description: Products retrieved successfully.
+ */
+
 import { Router } from "express";
 import {
   createProduct,
